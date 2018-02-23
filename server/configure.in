@@ -1,0 +1,79 @@
+dnl configure.in
+dnl 23.10.2002
+dnl
+dnl This program is free software; you can redistribute it and/or modify
+dnl it under the terms of the GNU General Public License as published by
+dnl the Free Software Foundation; either version 2 of the License, or
+dnl (at your option) any later version.
+dnl
+dnl Copyright (C) 2001-2002 by Carsten Moldenauer and Martin Huschenbett
+
+AC_INIT(LotusServer.hs)
+
+AC_ARG_WITH(ghc,
+  [ --with-ghc=GHC             use GHC as ghc], [GHC=$withval])
+AC_ARG_WITH(ghcflags,
+  [ --with-ghc-flags=GHCFLAGS  use GHCFLAGS as flags for ghc (default: -w -O2)],
+	[GHCFLAGS=$withval])
+
+AC_PATH_PROG(TEST,test)
+
+if $TEST -z "$GHC"; then
+	AC_PATH_PROG(GHC,ghc,ghc-not-found)
+	if $TEST $GHC = ghc-not-found; then
+		AC_MSG_ERROR([Cannot find ghc!])
+	fi
+fi
+
+if $TEST -z "$GHCFLAGS"; then
+	GHCFLAGS="-w -O2"
+fi
+
+AC_PATH_PROG(CP,cp)
+AC_PATH_PROG(RM,rm)
+AC_PATH_PROG(MV,mv)
+AC_PATH_PROG(MKDIR,mkdir)
+AC_PATH_PROG(RMDIR,rmdir)
+AC_PATH_PROG(INSTALL,install)
+AC_PATH_PROG(TAR,tar)
+AC_PATH_PROG(GZIP,gzip,gzip-not-found)
+AC_PATH_PROG(BZIP2,bzip2,bzip2-not-found)
+AC_PATH_PROG(DATE,date,date-not-found)
+
+if $TEST $GZIP != gzip-not-found; then
+	DIST=gzip
+else
+	if $TEST $BZIP2 != bzip2-not-found; then
+		DIST=bzip2
+	else
+		DIST=tar
+	fi
+fi
+
+if $TEST $DATE = date-not-found; then
+	DISTNAME=lotusserver
+else
+	DISTNAME="\`$DATE +lotusserver-%Y%m%d\`"
+fi
+
+AC_SUBST(GHC)
+AC_SUBST(GHCFLAGS)
+AC_SUBST(CP)
+AC_SUBST(RM)
+AC_SUBST(MV)
+AC_SUBST(MKDIR)
+AC_SUBST(RMDIR)
+AC_SUBST(INSTALL)
+AC_SUBST(TAR)
+AC_SUBST(GZIP)
+AC_SUBST(BZIP2)
+
+AC_SUBST(DIST)
+AC_SUBST(DISTNAME)
+
+AC_SUBST(prefix)
+AC_SUBST(exec_prefix)
+AC_SUBST(bindir)
+
+AC_OUTPUT(Makefile)
+

@@ -1,0 +1,165 @@
+# Makefile.in
+# 25.10.2002
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Copyright (C) 2001-2002 by Carsten Moldenauer and Martin Huschenbett
+
+# Tools
+CP              = @CP@
+RM              = @RM@
+RMF             = $(RM) --force
+MV              = @MV@
+MKDIR           = @MKDIR@ --parents
+RMDIR           = @RMDIR@ --parents --ignore-fail-on-non-empty
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = $(INSTALL) --mode=755 --strip
+INSTALL_DATA    = $(INSTALL) --mode=644
+INSTALL_DIR     = $(INSTALL) --directory
+TAR             = @TAR@
+GZIP            = @GZIP@ -9
+BZIP2           = @BZIP2@ -9
+
+# Compiler, linker, includes & libs
+CXX        = @CXX@
+CXXFLAGS   = @CXXFLAGS@
+INCLUDES   = -I@QT3INCDIR@ -I@X11INCDIR@ -I@GLINCDIR@
+LINK       = @LINK@
+LFLAGS     = @LFLAGS@
+LIBS       = -L@QT3LIBDIR@ -L@X11LIBDIR@ -L@GLLIBDIR@ -lqt -lGLU -lGL -lXmu -lXext -lX11 -lm
+MOC        = @MOC@
+
+# Directories
+prefix     	= @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+datadir     = @datadir@
+
+# Files
+MOCCLASSES = mainwindow.cc \
+             settingsdialog.cc \
+             client.cc \
+             lotus3d.cc \
+             generaltab.cc \
+             identitytab.cc \
+             networktab.cc
+CLASSES    = $(MOCCLASSES) \
+             lotus.cc \
+             protocol.cc \
+             settings.cc \
+
+TARGET     = lotux
+SOURCES    = $(CLASSES) main.cc
+HEADERS    = $(CLASSES:.cc=.h)
+OBJECTS    = $(SOURCES:.cc=.o)
+
+MOCSOURCES = $(addprefix moc_,$(MOCCLASSES))
+MOCOBJECTS = $(MOCSOURCES:.cc=.o)
+
+TEXTURES   = lotux256.xpm blackstone.xpm whitestone.xpm
+
+HELPFILES  = lotus_de.html lotux_de.html lotus_en.html lotux_en.html
+LANGFILES  = lotux_de.qm
+
+DISTFILES  = $(SOURCES) $(HEADERS) $(TEXTURES) $(HELPFILES) $(LANGFILES) \
+             ChangeLog INSTALL INSTALL.GERMAN LICENSE \
+						 config.h.in configure.in Makefile.in configure
+
+# Distribution
+DISTNAME   = @DISTNAME@
+DIST       = @DIST@
+
+# Implicit rules
+.SUFFIXES: .o .cc .h
+
+%.o : %.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+
+moc_%.cc: %.h
+	$(MOC) -o $@ $<
+
+# Targets
+.PHONY: all clean distclean install uninstall dist tar gzip bzip2
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS) $(MOCOBJECTS)
+	$(LINK) $(LFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	-$(RMF) $(OBJECTS) $(MOCSOURCES) $(MOCOBJECTS)
+
+distclean: clean
+	-$(RMF) $(TARGET) Makefile config.h config.log config.status config.cache
+
+dist: $(DIST)
+
+tar:
+	@$(MKDIR) $(DISTNAME) && \
+	$(CP) $(DISTFILES) $(DISTNAME)/ && \
+	$(TAR) cf $(DISTNAME).tar $(DISTNAME) && \
+	$(RMF) --recursive $(DISTNAME)/
+
+gzip: tar
+	@$(GZIP) $(DISTNAME).tar && $(MV) $(DISTNAME).tar.gz $(DISTNAME).tgz
+
+bzip2: tar
+	@$(BZIP2) $(DISTNAME).tar
+
+install: all
+	$(INSTALL_DIR) $(bindir)
+	$(INSTALL_PROGRAM) $(TARGET) $(bindir)
+	$(INSTALL_DIR) $(datadir)/lotux
+	$(INSTALL_DATA) $(HELPFILES) $(LANGFILES) $(datadir)/lotux
+
+uninstall:
+	-$(RMF) $(bindir)/$(TARGET)
+	-$(RMDIR) $(bindir)
+	-$(RMF) $(addprefix $(datadir)/lotux/,$(HELPFILES) $(LANGFILES))
+	-$(RMDIR) $(datadir)/lotux
+	
+
+# Dependencies
+main.o: main.cc mainwindow.h settings.h lotus.h protocol.h client.h \
+	lotus3d.h settingsdialog.h generaltab.h networktab.h identitytab.h
+
+mainwindow.o: mainwindow.cc
+moc_mainwindow.o: moc_mainwindow.cc
+mainwindow.o moc_mainwindow.o: mainwindow.h lotus.h protocol.h client.h \
+	lotus3d.h settings.h settingsdialog.h generaltab.h networktab.h \
+	identitytab.h
+
+settings.o: settings.cc settings.h
+
+lotus.o: lotus.cc lotus.h
+
+protocol.o: protocol.cc protocol.h lotus.h
+
+client.o: client.cc
+moc_client.o: moc_client.cc
+client.o moc_client.o: client.h
+
+lotus3d.o: lotus3d.cc
+moc_lotus3d.o: moc_lotus3d.cc
+lotus3d.o moc_lotus3d.o: lotus3d.h lotus.h $(TEXTURES)
+
+settingsdialog.o: settingsdialog.cc
+moc_settingsdialog.o: moc_settingsdialog.cc
+settingsdialog.o moc_settingsdialog.o: settingsdialog.h generaltab.h \
+	networktab.h identitytab.h settings.h
+
+generaltab.o: generaltab.cc
+moc_generaltab.o: moc_generaltab.cc
+generaltab.o moc_generaltob.o: settings.h generaltab.h
+
+identitytab.o: identitytab.cc
+moc_identitytab.o: moc_identitytab.cc
+identitytab.o moc_identitytab.o: identitytab.h
+
+networktab.o: networktab.cc
+moc_networktab.o: moc_networktab.cc
+networktab.o moc_networktab.o: networktab.h
+

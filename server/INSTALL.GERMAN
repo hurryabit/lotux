@@ -1,0 +1,48 @@
+Besondere Systemvorraussetzungen:
+---------------------------------
+
+Um das Programm zu erstellen, benötigen Sie den Glasgow Haskell Compiler (GHC).
+Dieser kann auf "http://www.haskell.org/ghc/".
+
+
+Installationsanleitung:
+-----------------------
+
+Nachdem Sie das Quellenverzeichnis mit einem Befehl wie
+
+	tar --gzip xvf lotuserver-<version>.tgz
+
+entpack haben, geben sie
+
+	cd lotusserver-<version>/
+
+ein, um in das Quellenverzeichnis zu wechseln. Rufen Sie nun
+
+	./configure
+
+auf, um einige Konfiguartionsdateien und das Makefile zu erzeugen. Sollten
+ihre Header Files oder Bibliotheken für Qt3, OpenGL oder X11 nicht in den
+gewöhnlichen Verzeichnissen liegen, versuchen Sie die `--help' Option, um
+herauszufinden, wie Sie configure mitteilen, wo sich diese Dateien befinden.
+Nachdem alles konfiguriert wurde, rufen Sie
+
+	make
+
+auf, um die Anwendung zu erstellen. Wollen Sie diese ebenfalls installieren,
+rufen Sie außerdem
+
+	make install
+
+auf.
+
+
+Lotusserver ausführen:
+----------------
+
+Nach einer erfolgreichen Installation, müssen Sie lediglich
+
+	lotuserver
+
+eintippen und das Programm startet. Ziehen Sie bitte die Option `--help' für
+weiter Informationen zu rate.
+

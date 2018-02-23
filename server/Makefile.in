@@ -1,0 +1,138 @@
+# Makfile.in
+# 23.10.2002
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Copyright (C) 2001-2002 by Carsten Moldenauer and Martin Huschenbett
+
+# Tools
+CP              = @CP@
+RM              = @RM@
+RMF             = $(RM) --force
+MV              = @MV@
+MKDIR           = @MKDIR@ --parents
+RMDIR           = @RMDIR@ --parents --ignore-fail-on-non-empty
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = $(INSTALL) --mode=755 --strip
+INSTALL_DIR     = $(INSTALL) --directory
+TAR             = @TAR@
+GZIP            = @GZIP@ -9
+BZIP2           = @BZIP2@ -9
+
+# Compiler & packages
+GHC        = @GHC@
+GHCFLAGS   = @GHCFLAGS@
+GHCPKGS    = -package net \
+             -package posix \
+             -package util \
+             -package concurrent
+
+# Directories
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+
+# Files
+COMMONSRC  = Functions.hs \
+             Lotus.hs \
+             MartinKI.hs \
+             MoldieKI.hs \
+             PerfectKI.hs \
+             Protocol.hs \
+             RandomKI.hs \
+             LotusKI.hs \
+             Talk.hs
+SERVERSRC  = LotusServer.hs \
+             Settings.hs
+CLIENTSRC  = Client.hs
+COMMONOBJ  = $(COMMONSRC:.hs=.o)
+SERVEROBJ  = $(SERVERSRC:.hs=.o)
+CLIENTOBJ  = $(CLIENTSRC:.hs=.o)
+COMMONIFS  = $(COMMONSRC:.hs=.hi)
+SERVERIFS  = $(SERVERSRC:.hs=.hi)
+CLIENTIFS  = $(CLIENTSRC:.hs=.hi)
+SERVER     = lotusserver
+CLIENT     = client
+
+DISTFILES  = $(COMMONSRC) \
+             $(SERVERSRC) \
+             $(CLIENTSRC) \
+             ChangeLog \
+             INSTALL \
+             INSTALL.GERMAN \
+             LICENSE \
+             configure \
+             configure.in \
+             Makefile.in
+
+# Distribution
+DISTNAME   = @DISTNAME@
+DIST       = @DIST@
+
+# Implicit rules
+.SUFFIXES: .o .hs .hi
+
+%.hi : %.o ;
+
+%.o : %.hs
+	$(GHC) -cpp $(GHCFLAGS) $(GHCPKGS) -o $@ -ohi $(patsubst %.hs,%.hi,$<) -c $<
+
+# Targets
+.PHONY: all clean distclean dist install uninstall
+
+all: $(SERVER) $(CLIENT)
+
+$(SERVER): $(COMMONOBJ) $(SERVEROBJ)
+	$(GHC) $(GHCFLAGS) $(GHCPKGS) -o $@ $^
+
+$(CLIENT): $(COMMONOBJ) $(CLIENTOBJ)
+	$(GHC) $(GHCFLAGS) $(GHCPKGS) -o $@ $^
+
+clean:
+	-$(RMF) $(COMMONOBJ) $(SERVEROBJ) $(CLIENTOBJ)
+	-$(RMF) $(COMMONIFS) $(SERVERIFS) $(CLIENTIFS)
+
+distclean: clean
+	-$(RMF) $(SERVER) $(CLIENT) Makefile config.*
+
+dist: $(DIST)
+
+tar:
+	@$(MKDIR) $(DISTNAME) && \
+	$(CP) $(DISTFILES) $(DISTNAME)/ && \
+	$(TAR) cf $(DISTNAME).tar $(DISTNAME) && \
+	$(RMF) --recursive $(DISTNAME)/
+
+gzip: tar
+	@$(GZIP) $(DISTNAME).tar && $(MV) $(DISTNAME).tar.gz $(DISTNAME).tgz
+
+bzip2: tar
+	@$(BZIP2) $(DISTNAME).tar
+
+install: all
+	$(INSTALL_DIR) $(bindir)
+	$(INSTALL_PROGRAM) $(SERVER) $(bindir)
+	$(INSTALL_PROGRAM) $(CLIENT) $(bindir)
+
+uninstall:
+	-$(RMF) $(bindir)/$(SERVER)
+	-$(RMF) $(bindir)/$(CLIENT)
+	-$(RMDIR) $(bindir)
+
+# Dependencies
+Client.o: Client.hs Lotus.hi LotusKI.hi Protocol.hi Talk.hi
+Functions.o: Functions.hs
+Lotus.o: Lotus.hs Functions.hi
+LotusServer.o: LotusServer.hs Settings.hi Talk.hi Protocol.hi Lotus.hi
+MartinKI.o: MartinKI.hs Functions.hi Lotus.hi
+MoldieKI.o: MoldieKI.hs Lotus.hi
+Protocol.o: Protocol.hs Lotus.hi Functions.hi
+PerfectKI.o: PerfectKI.hs Lotus.hi MartinKI.hi
+Settings.o: Settings.hs LotusKI.hi
+RandomKI.o: RandomKI.hs Lotus.hi
+LotusKI.o: LotusKI.hs RandomKI.hi PerfectKI.hi MartinKI.hi MoldieKI.hi Lotus.hi
+Talk.o: Talk.hs Protocol.hi
+

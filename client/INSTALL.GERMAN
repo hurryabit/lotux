@@ -1,0 +1,52 @@
+Besondere Systemvorraussetzungen:
+---------------------------------
+
+Um das Programm zu erstellen, benötigen Sie Qt 3.x und OpenGL auf Ihrem System.
+Ist eine dieser Bibliotheken nicht vorhanden, können Sie die bei
+"http://www.trolltech.com/" (Qt) bzw. "http://www.mesa3d.org/" (OpenGL)
+herunterladen.
+
+
+Installationsanleitung:
+-----------------------
+
+Nachdem Sie das Quellenverzeichnis mit einem Befehl wie
+
+	tar --gzip xvf lotux-<version>.tgz
+
+entpack haben, geben sie
+
+	cd lotux-<version>/
+
+ein, um in das Quellenverzeichnis zu wechseln. Rufen Sie nun
+
+	./configure
+
+auf, um einige Konfiguartionsdateien und das Makefile zu erzeugen. Sollten
+ihre Header Files oder Bibliotheken für Qt3, OpenGL oder X11 nicht in den
+gewöhnlichen Verzeichnissen liegen, versuchen Sie die `--help' Option, um
+herauszufinden, wie Sie configure mitteilen, wo sich diese Dateien befinden.
+Nachdem alles konfiguriert wurde, rufen Sie
+
+	make
+
+auf, um die Anwendung zu erstellen. Wollen Sie diese ebenfalls installieren,
+rufen Sie außerdem
+
+	make install
+
+auf. Falls Sie sich gegen eine Installation entscheiden sollten, sind eine
+Änderunge an der Konfiguration von Lotux notwendig. Sie müssen den richtigen
+Suchpfad für die Übersetzung- und die Hilfedateien angeben. Normalerweise
+handelt es sich dabei um das Quellenverzeichnis.
+
+
+Lotux ausführen:
+----------------
+
+Nach einer erfolgreichen Installation, müssen Sie lediglich
+
+	lotux
+
+eintippen und das Programm startet. Ziehen Sie bitte die Online-Hilfe für
+weiter Fragen zu rate.

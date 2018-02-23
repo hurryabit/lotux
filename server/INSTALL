@@ -1,0 +1,44 @@
+Special system requirements:
+----------------------------
+
+To build the server you need the Glasgow Haskell Compiler (GHC). You can
+download it from "http://www.haskell.org/ghc/"-
+
+
+Installation guide:
+-------------------
+
+After unpacking the source distribution with a command like
+
+	tar --gzip xvf lotusserver-<version>.tgz
+
+type
+
+	cd lotusserver-<version>/
+
+to change into the source directory. Now run
+
+	./configure
+
+to create some configuartion files and the Makefile. If your header files
+or libraries for Qt3, OpenGL or X11 are not placed in the usual directories,
+try the `--help' option, to find out, how you can tell this configure.
+After everything is configured, run
+
+	make
+
+to build the application. If you also wish to install the software, just type
+
+	make install
+
+
+Running lotusserver:
+--------------
+
+After a successfull installation just run
+
+	lotusserver
+
+and the server will start. Consider the command line option `--help' for
+further information.
+
